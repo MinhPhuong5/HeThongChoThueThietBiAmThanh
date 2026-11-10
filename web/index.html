@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Đăng nhập · Âm Kho</title>
+  <link rel="stylesheet" href="assets/auth.css">
+  <script src="assets/auth.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#login"><span class="brand-icon" aria-hidden="true">◈</span> Âm Kho</a>
+  </header>
+  <div class="toast" id="auth-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <main class="shell">
+    <section class="account-content" aria-labelledby="screen-title">
+        <h1 id="screen-title" tabindex="-1">Đăng nhập</h1>
+
+        <form id="login-form" action="#login">
+          <label for="login-email">Gmail</label>
+          <input id="login-email" type="email" placeholder="abc@gmail.com" autocomplete="username" required maxlength="254" autocapitalize="none" spellcheck="false">
+          <label for="login-password">Mật khẩu</label>
+          <div class="password-field">
+            <input id="login-password" type="password" autocomplete="current-password" required maxlength="128">
+            <button class="password-toggle" type="button" aria-controls="login-password" aria-label="Hiện mật khẩu" title="Hiện mật khẩu" hidden></button>
+          </div>
+          <button type="submit">Đăng nhập</button>
+        </form>
+
+        <form id="register-form" action="#register" hidden>
+          <label for="register-email">Gmail</label>
+          <input id="register-email" type="email" placeholder="abc@gmail.com" autocomplete="username" required maxlength="254" autocapitalize="none" spellcheck="false">
+          <label for="register-password">Mật khẩu</label>
+          <div class="password-field">
+            <input id="register-password" type="password" autocomplete="new-password" required maxlength="128" aria-describedby="password-hint">
+            <button class="password-toggle" type="button" aria-controls="register-password" aria-label="Hiện mật khẩu" title="Hiện mật khẩu" hidden></button>
+          </div>
+          <small id="password-hint">Gồm chữ thường, chữ hoa, số và ký tự đặc biệt.</small>
+          <label for="confirm-password">Nhập lại mật khẩu</label>
+          <div class="password-field">
+            <input id="confirm-password" type="password" autocomplete="new-password" required maxlength="128">
+            <button class="password-toggle" type="button" aria-controls="confirm-password" aria-label="Hiện mật khẩu nhập lại" title="Hiện mật khẩu nhập lại" hidden></button>
+          </div>
+          <button type="submit">Tạo tài khoản</button>
+        </form>
+
+        <p class="notice" id="notice" role="status" aria-live="polite" hidden></p>
+        <p class="account-switch"><span id="switch-text">Chưa có tài khoản?</span> <a id="switch-link" href="#register">Đăng ký</a></p>
+        <noscript>Vui lòng bật JavaScript để xem cả hai giao diện.</noscript>
+    </section>
+  </main>
+</body>
+</html>
