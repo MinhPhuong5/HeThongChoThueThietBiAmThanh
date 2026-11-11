@@ -85,14 +85,14 @@ Với đơn thanh toán sau khi nhận và chưa bàn giao, Thuê yêu cầu Tha
 
 ## 4. API công khai của Thuê
 
-JSON UTF-8. `POST /api/register`, `POST /api/login` và `GET /api/equipment` công khai, không cần đăng nhập. Các đường dẫn còn lại trong bảng cần `Authorization: Bearer <token>`. Thời điểm nhận và hạn trả truyền dưới dạng ISO 8601 có múi giờ.
+JSON UTF-8. `POST /api/register`, `POST /api/login` và `GET /api/equipment` là API công khai. Xem phương thức xác thực của các API được bảo vệ trong OpenAPI. Thời điểm nhận và hạn trả truyền dưới dạng ISO 8601 có múi giờ.
 
 | Phương thức và đường dẫn | Đầu vào | Kết quả |
 |---|---|---|
-| `POST /api/register` | Công khai. `username` và `password` (12–128 ký tự). | `201` với hồ sơ CUSTOMER. Trùng tên đã chuẩn hóa trả `409 USERNAME_TAKEN`. |
-| `POST /api/login` | Công khai. `username`, `password`. | `200` với `token`, `username`, `role`, `expires_in` (giây) và `must_change_password`. Phản hồi `Cache-Control: no-store`. |
-| `GET /api/me` | Bearer token còn hiệu lực. | `200` với tên, vai trò và cờ đổi mật khẩu. |
-| `POST /api/logout` | Bearer token đang dùng, kể cả phiên đổi mật khẩu tạm. | `204`, thu hồi phiên. |
+| `POST /api/register` | Công khai. Gmail qua `email` và `password` có chữ thường, chữ hoa, số và ký tự đặc biệt. | `201` với `email` và `role`. Gmail đã đăng ký trả `409 EMAIL_TAKEN`. |
+| `POST /api/login` | Công khai. `email` và `password`. | `200` với `email`, `role` và cookie phiên `amkho_session` HttpOnly. Sai thông tin trả `401`. |
+| `GET /api/me` | Cookie phiên còn hiệu lực. | `200` với `email` và `role`. |
+| `POST /api/logout` | Cookie phiên nếu còn. | `204`, thu hồi phiên nếu có và xóa cookie. |
 | `POST /api/account/change-password` | Bearer token, `current_password`, `new_password`. | `204`, cập nhật mật khẩu, thu hồi toàn bộ phiên và yêu cầu đăng nhập lại. |
 | `POST /api/users` | Nhân viên. `username` và `Idempotency-Key`. | `201`, cấp tài khoản `CUSTOMER` và mật khẩu tạm một lần. Gửi lặp không cấp tài khoản hoặc mật khẩu mới. |
 | `POST /api/users/{user_id}/reset-password` | Nhân viên, chỉ tài khoản `CUSTOMER`, `Idempotency-Key`. | `200`, cấp mật khẩu tạm một lần và thu hồi phiên cũ. Gửi lặp không đặt lại lần hai. |
@@ -194,7 +194,7 @@ data/                      # Dữ liệu chạy cục bộ, sinh khi khởi đ�
 - `POST /api/orders/{id}/handover` nhận `{items:[{asset_id, condition, accessories:[{code,quantity}]}], note?}`. `POST /api/orders/{id}/return` nhận `{operation_id, items:[{asset_id, condition, missing_accessory_codes:[]}], note?}`. Mỗi lần hoàn trả có mã thao tác riêng. `condition` là `OK` hoặc `DAMAGED`, riêng bàn giao chỉ nhận `OK`. Hai API trả `{order_id,status,occurred_at,items}`; trả `202` kèm bước chờ khi chưa xác định được. `occurred_at` do Thuê ghi lúc tiếp nhận thao tác, giữ nguyên khi thử lại.
 - Thuê kiểm quyền trước khi chuyển thao tác nhân viên ở §4 sang API nội bộ tương ứng ở §5.
 - Lỗi dùng `{error:{code,message}}`. Enum `ErrorCode` và bảng `x-http-status-by-code` trong [OpenAPI](../contracts/openapi.json) là nguồn chuẩn cho mã lỗi và HTTP status. Webhook hợp lệ trả `201` với `{success:true}` sau khi lưu. Gửi lặp cũng được xác nhận.
-- Thuê lưu mật khẩu băm bằng Argon2id và chỉ lưu hash của Bearer token. Phiên mặc định 30 phút, giao diện giữ token trong bộ nhớ. Phiên dùng mật khẩu tạm chỉ được đổi mật khẩu và đăng xuất. Thuê tra quyền trên từng tài nguyên. Nhân viên cấp hoặc reset tài khoản khách và chuyển mật khẩu tạm qua kênh riêng. Phản hồi chứa mật khẩu tạm chỉ hiển thị một lần và dùng `Cache-Control: no-store`. Retry trả kết quả cũ đã lược mật khẩu. Nếu mất mật khẩu tạm, nhân viên tạo yêu cầu reset mới. Tài khoản nhân viên đầu tiên được cấp bằng lệnh quản trị riêng.
+- Thuê băm mật khẩu bằng Argon2id và chỉ lưu hash của token phiên. Web dùng cookie HttpOnly và SameSite=Strict với thời hạn 30 phút, thêm Secure khi chạy HTTPS. Luồng nhân viên cấp hoặc đặt lại mật khẩu tạm và đổi mật khẩu thuộc giai đoạn sau. Tài khoản đang dùng mật khẩu tạm hiện nhận `403` khi đăng nhập.
 - API đăng nhập, tra cứu, tạo đơn và webhook có giới hạn tần suất theo luồng. Trả `429 RATE_LIMITED` kèm `Retry-After` khi vượt ngưỡng. Webhook có hạn mức riêng, độc lập với API trình duyệt. Không ghi mật khẩu, token, QR payload đầy đủ hoặc bí mật webhook vào log.
 - Kho là nguồn giá đã chốt. Thuê lấy số tiền trực tiếp từ lượt giữ rồi gửi Thanh toán qua API nội bộ. Thanh toán tin Thuê trong MVP, lưu bản sao số tiền và kiểm tra số tiền webhook với bản sao đó. Chỉ môi trường local/test cấu hình bộ mô phỏng và fixture riêng; cấu hình thật từ chối trường mô phỏng, không cho client chọn nhà cung cấp.
 - Thuê dùng `SELECT ... FOR UPDATE` trên dòng đơn (dòng khách khi tạo đơn), cùng khóa duy nhất cho yêu cầu lặp. Ghi bước chờ và công việc trong transaction ngắn, commit trước HTTP. Worker nhận công việc bằng `FOR UPDATE SKIP LOCKED` và lease có hạn, thực thi ngoài transaction. Khi lease hết hoặc tiến trình dừng, worker kế tiếp tra cứu trước khi thử lại với cùng khóa. Chỉ cập nhật kết quả nếu token lease và trạng thái kỳ vọng còn khớp.

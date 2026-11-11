@@ -45,19 +45,13 @@ function showToast(message, kind = 'success') {
   }, 2500);
 }
 
-function showLoginResult(authenticated) {
-  if (authenticated) showToast('Đăng nhập thành công');
-  else showToast('Sai tài khoản hoặc mật khẩu', 'error');
-}
-
 function showScreen(focus = false) {
   clearTimeout(redirectTimer);
-  registerButton.disabled = false;
   const registering = location.hash === '#register';
   const title = registering ? 'Đăng ký' : 'Đăng nhập';
   const heading = byId('screen-title');
   heading.textContent = title;
-  document.title = `${title} · Âm Kho`;
+  document.title = `${title} · EchoRent`;
   loginForm.hidden = registering;
   registerForm.hidden = !registering;
   byId('switch-text').textContent = registering ? 'Đã có tài khoản?' : 'Chưa có tài khoản?';
@@ -83,17 +77,37 @@ function requireGmail(input) {
   }
 }
 
-loginForm.addEventListener('submit', (event) => {
+async function submitCredentials(endpoint, email, password) {
+  const response = await fetch(`/api/${endpoint}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error?.message || 'Không thể hoàn tất yêu cầu.');
+}
+
+loginForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-  if (!requireGmail(byId('login-email'))) return;
-  byId('login-password').value = '';
-  setPasswordVisibility(loginForm.querySelector('.password-toggle'), false);
+  const button = loginForm.querySelector('button[type="submit"]');
+  const email = byId('login-email');
+  const password = byId('login-password');
+  if (button.disabled || !requireGmail(email)) return;
   notify();
-  // The static preview has no credential check. Pass the authentication result here when connected.
-  showLoginResult(true);
+  button.disabled = true;
+  try {
+    await submitCredentials('login', email.value, password.value);
+    password.value = '';
+    setPasswordVisibility(loginForm.querySelector('.password-toggle'), false);
+    showToast('Đăng nhập thành công');
+    setTimeout(() => { location.replace('/home'); }, 900);
+  } catch (error) {
+    showToast(error instanceof TypeError ? 'Không thể kết nối. Vui lòng thử lại.' : error.message, 'error');
+    button.disabled = false;
+  }
 });
 
-registerForm.addEventListener('submit', (event) => {
+registerForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   if (registerButton.disabled) return;
   if (!requireGmail(byId('register-email'))) return;
@@ -110,12 +124,22 @@ registerForm.addEventListener('submit', (event) => {
     confirmation.focus();
     return;
   }
-  registerForm.reset();
-  for (const button of registerForm.querySelectorAll('.password-toggle')) setPasswordVisibility(button, false);
   notify();
   registerButton.disabled = true;
-  showToast('Tạo tài khoản thành công');
-  redirectTimer = setTimeout(() => { location.hash = '#login'; }, 900);
+  try {
+    const email = byId('register-email').value;
+    await submitCredentials('register', email, password.value);
+    registerForm.reset();
+    for (const button of registerForm.querySelectorAll('.password-toggle')) setPasswordVisibility(button, false);
+    showToast('Tạo tài khoản thành công');
+    redirectTimer = setTimeout(() => {
+      if (location.hash === '#register') location.hash = '#login';
+    }, 900);
+  } catch (error) {
+    showToast(error instanceof TypeError ? 'Không thể kết nối. Vui lòng thử lại.' : error.message, 'error');
+  } finally {
+    registerButton.disabled = false;
+  }
 });
 
 window.addEventListener('hashchange', () => showScreen(true));

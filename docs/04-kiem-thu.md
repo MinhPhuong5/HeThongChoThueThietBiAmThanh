@@ -1,8 +1,8 @@
 # Ma trận kiểm thử đề xuất
 
-## Giai đoạn 1  Xem giao diện
+## Giai đoạn 1  Đăng ký và đăng nhập
 
-Giai đoạn này mở trực tiếp bằng trình duyệt và gồm hai màn hình đăng nhập, đăng ký. Kiểm tra chuyển màn hình, trường bắt buộc, mật khẩu xác nhận, trạng thái phản hồi và bố cục điện thoại. Các ca xác thực HTTP, PostgreSQL và vận hành bên dưới thuộc giai đoạn triển khai backend.
+Đã kiểm tra trên PostgreSQL 18 tạm và Edge. Đăng ký Gmail hợp lệ tạo tài khoản khách, Gmail trùng trả `409` và mật khẩu sai trả `401`. Mật khẩu được lưu dưới dạng băm, cookie phiên có HttpOnly. Đăng nhập thành công mở trang chủ, đăng xuất thu hồi phiên. Thử lại token cũ hoặc truy cập trang chủ sau khi đăng xuất đều bị chặn.
 
 Ma trận do nhóm đề xuất dựa trên yêu cầu môn học đã nhận, chưa phải bảng chấm điểm chính thức của giảng viên. Các mã HTTP dưới đây là kỳ vọng thiết kế, chưa phải kết quả chạy.
 

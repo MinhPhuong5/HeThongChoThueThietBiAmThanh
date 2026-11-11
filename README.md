@@ -7,8 +7,10 @@ Bộ thiết kế SOA cho web thử nghiệm và vận hành thật. Ba dịch v
 - [Phân công](docs/03-ke-hoach-va-phan-cong.md) · [Bản Word và từ điển dữ liệu](Phan-cong-cong-viec-SOA.docx)
 - [Kế hoạch kiểm thử](docs/04-kiem-thu.md) · [Kế hoạch triển khai web](docs/06-trien-khai-web.md)
 
-## Giai đoạn 1  Xem giao diện đăng nhập và đăng ký
+## Giai đoạn 1  Đăng ký và đăng nhập
 
-Trên Windows, nhấp đúp [start.bat](start.bat). Tệp mở giao diện đăng nhập bằng trình duyệt mặc định. Bấm **Đăng ký** để chuyển sang biểu mẫu đăng ký và **Đăng nhập** để quay lại. Có thể mở trực tiếp [web/index.html](web/index.html).
+Trên Windows, nhấp đúp [start.bat](start.bat). Launcher dùng Python và PostgreSQL đã cài trên máy. Nó kiểm tra ba bảng của database `rental`, khởi động FastAPI tại `http://127.0.0.1:8000` và mở trình duyệt. Giữ cửa sổ launcher mở khi dùng web.
 
-Bản xem thử kiểm tra Gmail, các trường bắt buộc và mật khẩu ngay trên trang. Sau khi điền đăng ký hợp lệ, thông báo mô phỏng hiện ở mép trên rồi giao diện quay về Đăng nhập. Dùng dữ liệu mẫu vì biểu mẫu không gửi hoặc lưu thông tin. Có thể mở trực tiếp bằng trình duyệt. Các tài liệu SOA và OpenAPI ở trên mô tả các giai đoạn sau.
+Sao chép [.env.example](.env.example) thành `.env` ở thư mục gốc và điền `PGPASSWORD` một lần. Sửa `PGHOST`, `PGPORT`, `PGDATABASE` hoặc `PGUSER` nếu khác kết nối trong pgAdmin. `.env` được Git bỏ qua. Khi deploy, cấu hình các biến này qua phần biến môi trường hoặc secrets của máy chủ. Biến môi trường có ưu tiên cao hơn `.env`.
+
+Chọn **Đăng ký** để tạo tài khoản khách bằng Gmail. Sau đăng ký, đăng nhập bằng tài khoản vừa tạo để mở `/home`. Nút **Đăng xuất** mở hộp xác nhận. Chọn **Ở lại** để tiếp tục hoặc xác nhận **Đăng xuất** để thu hồi phiên rồi quay về trang đăng nhập.

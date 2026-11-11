@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trang chủ · EchoRent</title>
+  <link rel="stylesheet" href="/assets/auth.css">
+  <script src="/assets/home.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <!-- site-brand -->
+    <button id="logout" class="logout-button" type="button">Đăng xuất</button>
+  </header>
+  <main aria-label="Trang chủ"></main>
+  <dialog id="logout-dialog" class="logout-dialog" aria-labelledby="logout-title" aria-describedby="logout-question">
+    <h1 id="logout-title">Xác nhận đăng xuất</h1>
+    <p id="logout-question">Bạn có muốn đăng xuất khỏi EchoRent?</p>
+    <p id="logout-error" class="notice" data-kind="error" role="status" hidden></p>
+    <div class="logout-actions">
+      <button id="cancel-logout" class="dialog-button" type="button" autofocus>Ở lại</button>
+      <button id="confirm-logout" class="dialog-button dialog-confirm" type="button">Đăng xuất</button>
+    </div>
+  </dialog>
+</body>
+</html>
