@@ -3,16 +3,83 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Trang chủ · EchoRent</title>
+  <title>Thuê thiết bị · EchoRent</title>
   <link rel="stylesheet" href="/assets/auth.css">
+  <link rel="stylesheet" href="/assets/rental.css">
   <script src="/assets/home.js" defer></script>
+  <script src="/assets/rental.js" defer></script>
 </head>
 <body>
   <header class="site-header">
     <!-- site-brand -->
+    <nav class="rental-nav" aria-label="Nghiệp vụ thuê">
+      <a href="#dat-thue" id="booking-link">Đặt thuê</a>
+      <a href="#lich-thue" id="orders-link">Lịch thuê</a>
+    </nav>
     <button id="logout" class="logout-button" type="button">Đăng xuất</button>
   </header>
-  <main aria-label="Trang chủ"></main>
+  <main class="rental-workspace">
+    <p id="rental-message" class="rental-message" role="status" hidden></p>
+    <section id="booking-view" aria-labelledby="booking-title">
+      <h1 id="booking-title">Thuê thiết bị âm thanh</h1>
+      <div class="booking-layout">
+        <div class="rental-card">
+          <h2>Kỳ thuê</h2>
+          <form id="availability-form">
+            <div class="date-fields">
+              <label>Giờ nhận<input name="pickup_at" type="datetime-local" required></label>
+              <label>Hạn trả<input name="due_at" type="datetime-local" required></label>
+            </div>
+            <p class="rental-hint">08:00–20:00, giờ Việt Nam</p>
+            <button class="rental-primary" type="submit">Tìm thiết bị</button>
+          </form>
+          <div class="equipment-section">
+            <h2>Thiết bị khả dụng</h2>
+            <p class="rental-hint" id="equipment-message" role="status">Chọn kỳ thuê để xem thiết bị còn trống.</p>
+            <div id="equipment-list" class="equipment-list"></div>
+          </div>
+        </div>
+        <section class="rental-card rental-summary" aria-labelledby="summary-title">
+          <h2 id="summary-title">Yêu cầu thuê</h2>
+          <div id="rental-selection"><p class="rental-hint">Chưa chọn thiết bị.</p></div>
+          <div class="rental-total"><span>Tạm tính</span><strong id="rental-total">—</strong></div>
+          <form id="order-form">
+            <label for="payment-method">Phương thức thanh toán</label>
+            <select id="payment-method" name="payment_method">
+              <option value="PAY_ON_RECEIPT">Thanh toán khi nhận thiết bị</option>
+              <option value="ONLINE">Chuyển khoản bằng QR</option>
+            </select>
+            <button class="rental-primary" type="submit" disabled>Đặt thuê</button>
+          </form>
+        </section>
+      </div>
+    </section>
+    <section id="orders-view" aria-labelledby="orders-title" hidden>
+      <div class="rental-section-heading">
+        <h1 id="orders-title">Lịch thuê của tôi</h1>
+        <button id="refresh-orders" class="rental-secondary" type="button">Làm mới</button>
+      </div>
+      <form id="staff-order-filter" class="rental-card staff-order-filter" hidden>
+        <label>Lọc theo lịch
+          <select name="schedule">
+            <option value="">Tất cả lượt thuê</option>
+            <option value="PICKUP">Lịch nhận trong ngày</option>
+            <option value="RETURN">Lịch trả trong ngày</option>
+            <option value="OVERDUE">Đang quá hạn</option>
+          </select>
+        </label>
+        <label id="schedule-date-field" hidden>Ngày<input name="date" type="date"></label>
+        <button class="rental-primary" type="submit">Áp dụng</button>
+      </form>
+      <div id="orders-list" class="rental-card" aria-live="polite"></div>
+      <div id="order-pages" class="order-pages" hidden>
+        <button id="previous-page" class="rental-secondary" type="button">Trang trước</button>
+        <span id="page-number"></span>
+        <button id="next-page" class="rental-secondary" type="button">Trang sau</button>
+      </div>
+      <section id="order-detail" class="rental-card order-detail" aria-label="Chi tiết lượt thuê" tabindex="-1" hidden></section>
+    </section>
+  </main>
   <dialog id="logout-dialog" class="logout-dialog" aria-labelledby="logout-title" aria-describedby="logout-question">
     <h1 id="logout-title">Xác nhận đăng xuất</h1>
     <p id="logout-question">Bạn có muốn đăng xuất khỏi EchoRent?</p>

@@ -120,7 +120,25 @@
         "security": [],
         "responses": {
           "200": {
-            "description": "Kết quả đã ghi hoặc dữ liệu tra cứu"
+            "description": "Kết quả đã ghi hoặc dữ liệu tra cứu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "equipment"
+                  ],
+                  "properties": {
+                    "equipment": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EquipmentAvailability"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
           "default": {
             "description": "Lỗi theo bảng hợp đồng",
@@ -178,18 +196,39 @@
         "description": "Phiên khách, `Idempotency-Key`, `pickup_at`, `due_at`, danh sách loại thiết bị và số lượng, `payment_method` (`ONLINE` hoặc `PAY_ON_RECEIPT`). Trả đơn thuê, trạng thái và hướng dẫn QR/mã nếu chọn trực tuyến. Thiếu khả dụng trả `409 ASSET_UNAVAILABLE`. Trường `simulation_scenario` tùy chọn chỉ ở local/test, theo §11. Với ONLINE, giờ nhận phải cách thời điểm tạo đơn ít nhất 15 phút. Vi phạm trả 400 PICKUP_TOO_SOON trước khi giữ kho.",
         "security": [
           {
-            "bearerAuth": []
+            "cookieSession": []
           }
         ],
         "responses": {
           "200": {
-            "description": "Kết quả đã ghi hoặc dữ liệu tra cứu"
+            "description": "Kết quả đã ghi hoặc dữ liệu tra cứu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RentalOrder"
+                }
+              }
+            }
           },
           "201": {
-            "description": "Yêu cầu hoặc webhook đã ghi"
+            "description": "Yêu cầu hoặc webhook đã ghi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RentalOrder"
+                }
+              }
+            }
           },
           "202": {
-            "description": "Đã lưu bước chờ"
+            "description": "Đã lưu bước chờ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RentalOrder"
+                }
+              }
+            }
           },
           "default": {
             "description": "Lỗi theo bảng hợp đồng",
@@ -326,12 +365,43 @@
         "description": "Phiên khách/nhân viên. Nhân viên có thể lọc lịch nhận, lịch trả và lượt quá hạn. `200` với `orders[]`.",
         "security": [
           {
-            "bearerAuth": []
+            "cookieSession": []
           }
         ],
         "responses": {
           "200": {
-            "description": "Kết quả đã ghi hoặc dữ liệu tra cứu"
+            "description": "Kết quả đã ghi hoặc dữ liệu tra cứu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "items",
+                    "page",
+                    "page_size",
+                    "total"
+                  ],
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/RentalOrder"
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "page_size": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
           },
           "default": {
             "description": "Lỗi theo bảng hợp đồng",
@@ -363,6 +433,27 @@
               "default": 20,
               "maximum": 100
             }
+          },
+          {
+            "name": "schedule",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PICKUP",
+                "RETURN",
+                "OVERDUE"
+              ]
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "description": "Required for PICKUP or RETURN, in Vietnam time.",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
           }
         ]
       }
@@ -372,12 +463,19 @@
         "description": "Quyền xem đơn. `200` với đơn và `history[]`.",
         "security": [
           {
-            "bearerAuth": []
+            "cookieSession": []
           }
         ],
         "responses": {
           "200": {
-            "description": "Kết quả đã ghi hoặc dữ liệu tra cứu"
+            "description": "Kết quả đã ghi hoặc dữ liệu tra cứu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RentalOrder"
+                }
+              }
+            }
           },
           "default": {
             "description": "Lỗi theo bảng hợp đồng",
@@ -407,7 +505,7 @@
         "description": "Quyền xem đơn. `200` khi đã có kết quả, `202` nếu còn chờ.",
         "security": [
           {
-            "bearerAuth": []
+            "cookieSession": []
           }
         ],
         "responses": {
@@ -455,7 +553,7 @@
         "description": "Chủ đơn hoặc nhân viên, `Idempotency-Key`. Nhân viên có thể gửi `reason=NO_SHOW` sau hạn đến nhận. `200` với `CANCELLED`, `202` nếu còn chờ.",
         "security": [
           {
-            "bearerAuth": []
+            "cookieSession": []
           }
         ],
         "responses": {
@@ -530,7 +628,7 @@
         "description": "Nhân viên, đơn trong cửa sổ bàn giao, mã tài sản và tình trạng/phụ kiện đã kiểm tra. `200` với `HANDED_OVER`, `409` khi tài sản không thể bàn giao, `202` nếu cần đối soát.",
         "security": [
           {
-            "bearerAuth": []
+            "cookieSession": []
           }
         ],
         "responses": {
@@ -651,7 +749,7 @@
         "description": "Nhân viên, đơn chọn `PAY_ON_RECEIPT` đã từng bàn giao (kể cả đã hoàn trả hoặc đóng vì mất tài sản) và khoản thực thu khớp số phải thu. Xác nhận thu một lần. Trả trạng thái đã ghi nếu gửi lại.",
         "security": [
           {
-            "bearerAuth": []
+            "cookieSession": []
           }
         ],
         "responses": {
@@ -683,11 +781,20 @@
           }
         ],
         "requestBody": {
-          "required": false,
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "required": [
+                  "amount"
+                ],
+                "properties": {
+                  "amount": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
               }
             }
           }
@@ -699,7 +806,7 @@
         "description": "Nhân viên, đơn đã bàn giao, kết quả kiểm tra từng tài sản và phụ kiện được hoàn trả trong lần này. `200` với `RETURNED` hoặc `PARTIALLY_RETURNED` khi bật Could, thời điểm trả thực tế và thời lượng quá hạn nếu có. `202` nếu Kho chưa xác nhận, `409 INCOMPLETE_RETURN` nếu thiếu và chưa bật Could.",
         "security": [
           {
-            "bearerAuth": []
+            "cookieSession": []
           }
         ],
         "responses": {
@@ -890,7 +997,7 @@
         "description": "Nhân viên, `{operation_id,asset_ids,reason}`. Could. `200` với trạng thái mới, `202` nếu Kho chưa xác nhận.",
         "security": [
           {
-            "bearerAuth": []
+            "cookieSession": []
           }
         ],
         "responses": {
@@ -957,7 +1064,7 @@
         "description": "Nhân viên, `{reference,amount}` và `Idempotency-Key`. `200` khi đã ghi nhận hoàn, `202` nếu còn chờ.",
         "security": [
           {
-            "bearerAuth": []
+            "cookieSession": []
           }
         ],
         "responses": {
@@ -3081,6 +3188,172 @@
           "RATE_LIMITED": 429,
           "USERNAME_TAKEN": 409,
           "EMAIL_TAKEN": 409
+        }
+      },
+      "EquipmentAvailability": {
+        "type": "object",
+        "required": [
+          "type",
+          "name",
+          "daily_rate_vnd",
+          "available_quantity"
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "daily_rate_vnd": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "available_quantity": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "image_url": {
+            "type": "string"
+          }
+        }
+      },
+      "RentalOrder": {
+        "type": "object",
+        "required": [
+          "id",
+          "pickup_at",
+          "due_at",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pickup_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "no_show_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "payment_status": {
+            "type": "string"
+          },
+          "payment_method": {
+            "type": "string",
+            "enum": [
+              "PAY_ON_RECEIPT",
+              "ONLINE"
+            ]
+          },
+          "amount_vnd": {
+            "type": "integer",
+            "minimum": 0,
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "type",
+                "quantity"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          },
+          "assets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "asset_id"
+              ],
+              "properties": {
+                "asset_id": {
+                  "type": "string"
+                },
+                "accessories": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "code",
+                      "quantity"
+                    ],
+                    "properties": {
+                      "code": {
+                        "type": "string"
+                      },
+                      "quantity": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "payment": {
+            "type": "object",
+            "required": [
+              "expires_at"
+            ],
+            "properties": {
+              "payment_code": {
+                "type": "string"
+              },
+              "expires_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "qr_url": {
+                "type": "string"
+              }
+            }
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "occurred_at"
+              ],
+              "properties": {
+                "occurred_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
         }
       }
     }

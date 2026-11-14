@@ -96,9 +96,9 @@ JSON UTF-8. `POST /api/register`, `POST /api/login` và `GET /api/equipment` là
 | `POST /api/account/change-password` | Bearer token, `current_password`, `new_password`. | `204`, cập nhật mật khẩu, thu hồi toàn bộ phiên và yêu cầu đăng nhập lại. |
 | `POST /api/users` | Nhân viên. `username` và `Idempotency-Key`. | `201`, cấp tài khoản `CUSTOMER` và mật khẩu tạm một lần. Gửi lặp không cấp tài khoản hoặc mật khẩu mới. |
 | `POST /api/users/{user_id}/reset-password` | Nhân viên, chỉ tài khoản `CUSTOMER`, `Idempotency-Key`. | `200`, cấp mật khẩu tạm một lần và thu hồi phiên cũ. Gửi lặp không đặt lại lần hai. |
-| `GET /api/equipment` | Công khai. Query `pickup_at`, `due_at`. | `200` với `equipment[]`, mỗi dòng có mã loại, tên, giá thuê theo ngày và số lượng dự kiến khả dụng trong kỳ. |
+| `GET /api/equipment` | Công khai. Query `pickup_at`, `due_at`. | `200` với `equipment[]` gồm `type`, `name`, `daily_rate_vnd`, `available_quantity` và `image_url` tùy chọn. Thiết bị và ảnh do Kho cung cấp. URL ảnh đi qua cùng origin EchoRent. |
 | `POST /api/orders` | Phiên khách, `Idempotency-Key`, `pickup_at`, `due_at`, danh sách loại thiết bị và số lượng, `payment_method` (`ONLINE` hoặc `PAY_ON_RECEIPT`). | Trả đơn thuê, trạng thái và hướng dẫn QR/mã nếu chọn trực tuyến. Thiếu khả dụng trả `409 ASSET_UNAVAILABLE`. Trường `simulation_scenario` tùy chọn chỉ ở local/test, theo §11. |
-| `GET /api/orders` | Phiên khách/nhân viên. Nhân viên có thể lọc lịch nhận, lịch trả và lượt quá hạn. | `200` với `orders[]`. |
+| `GET /api/orders` | Phiên khách/nhân viên. Nhân viên có thể lọc `schedule=PICKUP`, `RETURN` hoặc `OVERDUE`. Hai chế độ lịch ngày cần `date` theo giờ Việt Nam. | `200` với `items`, `page`, `page_size`, `total`. |
 | `GET /api/orders/{id}` | Quyền xem đơn. | `200` với đơn và `history[]`. |
 | `POST /api/orders/{id}/reconcile` | Quyền xem đơn. | `200` khi đã có kết quả, `202` nếu còn chờ. |
 | `POST /api/orders/{id}/cancel` | Chủ đơn hoặc nhân viên, `Idempotency-Key`. Nhân viên có thể gửi `reason=NO_SHOW` sau hạn đến nhận. | `200` với `CANCELLED`, `202` nếu còn chờ. |
